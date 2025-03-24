@@ -43,7 +43,7 @@ fn model(app: &App) -> Model {
     let mut particles = Vec::new();
     let window_rect = app.window_rect();
     let mut rng = rand::thread_rng();
-    let num_particles = 2500; // Incrementamos el número de partículas
+    let num_particles = 2000;
 
     for _i in 0..num_particles {
         let position = vec2(
@@ -65,10 +65,16 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     }
 
     let gravity = vec2(0.0, -0.1);
+    let window_rect = app.window_rect(); // Obtener los límites de la ventana aquí
 
     model.particles.par_iter_mut().for_each(|particle| {
         particle.apply_force(gravity);
         particle.update();
+    });
+
+    // Filtrar las partículas usando retain
+    model.particles.retain(|particle| {
+        window_rect.contains_point(particle.position.into()) // Verifica si la partícula está dentro de la ventana
     });
 }
 
