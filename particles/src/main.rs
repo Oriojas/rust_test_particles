@@ -1,5 +1,6 @@
 use nannou::prelude::*;
 use rand::Rng;
+use rayon::prelude::*;
 
 fn main() {
     nannou::app(model).simple_window(view).update(update).run();
@@ -12,7 +13,6 @@ struct Particle {
     color: Rgba,
 }
 
-// Implementación de Particle MODIFICADA para incluir aceleración y apply_force
 impl Particle {
     fn new(position: Vec2) -> Self {
         let mut rng = rand::thread_rng();
@@ -35,7 +35,6 @@ impl Particle {
     }
 }
 
-// Model struct (sin cambios)
 struct Model {
     particles: Vec<Particle>,
 }
@@ -44,7 +43,7 @@ fn model(app: &App) -> Model {
     let mut particles = Vec::new();
     let window_rect = app.window_rect();
     let mut rng = rand::thread_rng();
-    let num_particles = 500; // Definimos el número de partículas
+    let num_particles = 2500; // Incrementamos el número de partículas
 
     for _i in 0..num_particles {
         let position = vec2(
@@ -59,21 +58,18 @@ fn model(app: &App) -> Model {
 }
 
 fn update(app: &App, model: &mut Model, _update: Update) {
-    // Descomenta esta sección si quieres seguir creando partículas con el ratón además de las 100000 iniciales
-
     if app.mouse.buttons.left().is_down() {
         let mouse_pos = app.mouse.position();
         let new_particle = Particle::new(mouse_pos);
         model.particles.push(new_particle);
     }
 
-    let gravity = vec2(0.0, -0.1); // **VECTOR de gravedad hacia abajo**
+    let gravity = vec2(0.0, -0.1);
 
-    // ITERAR, APLICAR GRAVEDAD y ACTUALIZAR cada partícula
-    for particle in &mut model.particles {
+    model.particles.par_iter_mut().for_each(|particle| {
         particle.apply_force(gravity);
         particle.update();
-    }
+    });
 }
 
 fn view(_app: &App, model: &Model, frame: Frame) {
@@ -83,7 +79,7 @@ fn view(_app: &App, model: &Model, frame: Frame) {
     for particle in &model.particles {
         draw.ellipse()
             .xy(particle.position)
-            .radius(1.0)
+            .radius(2.0)
             .color(particle.color);
     }
 
