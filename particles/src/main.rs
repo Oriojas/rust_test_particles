@@ -26,7 +26,7 @@ impl Particle {
         Particle {
             position,
             // Asigna una velocidad aleatoria a la partícula.
-            velocity: vec2(rng.gen_range(-5.0..5.0), rng.gen_range(-5.0..5.0)),
+            velocity: vec2(rng.gen_range(-10.0..10.0), rng.gen_range(-10.0..10.0)),
             acceleration: Vec2::ZERO, // Inicializa la aceleración a cero.
             color: rgba(1.0, 1.0, 0.0, 1.0), // Inicializa el color a amarillo.
         }
@@ -48,7 +48,7 @@ impl Particle {
     fn update_color(&mut self, mouse_pos: Vec2) {
         // Calcula la distancia entre la partícula y el mouse.
         let distance = self.position.distance(mouse_pos);
-        let max_distance = 400.0; // Define la distancia máxima para el cambio de color.
+        let max_distance = 200.0; // Define la distancia máxima para el cambio de color.
                                   // Normaliza la distancia para obtener un valor entre 0.0 y 1.0.
         let distance_normalized = (distance / max_distance).min(1.0);
         // Interpola el color entre amarillo y rojo basándose en la distancia normalizada.
@@ -67,7 +67,7 @@ fn model(app: &App) -> Model {
     let mut particles = Vec::new(); // Crea un nuevo vector para almacenar las partículas.
     let window_rect = app.window_rect(); // Obtiene el rectángulo de la ventana.
     let mut rng = rand::thread_rng(); // Crea un nuevo generador de números aleatorios.
-    let num_particles = 1000; // Define el número de partículas a crear.
+    let num_particles = 500; // Define el número de partículas a crear.
 
     // Crea las partículas y las añade al vector.
     for _i in 0..num_particles {
@@ -85,10 +85,14 @@ fn model(app: &App) -> Model {
 /// Función que actualiza el modelo en cada frame.
 fn update(app: &App, model: &mut Model, _update: Update) {
     // Si el botón derecho del mouse está presionado, crea una nueva partícula en la posición del mouse.
+    let mut rng = rand::thread_rng(); // Crea un generador de números aleatorios.
     if app.mouse.buttons.right().is_down() {
         let mouse_pos = app.mouse.position(); // Obtiene la posición del mouse.
-        let new_particle = Particle::new(mouse_pos); // Crea una nueva partícula.
-        model.particles.push(new_particle); // Añade la partícula al modelo.
+        for _i in 1..rng.gen_range(1..40) {
+            // cantidad de particulas a generar con el mause
+            let new_particle = Particle::new(mouse_pos); // Crea una nueva partícula.
+            model.particles.push(new_particle); // Añade la partícula al modelo.
+        }
     }
 
     let gravity = vec2(0.0, -0.1); // Define la fuerza de gravedad.
@@ -117,7 +121,7 @@ fn view(_app: &App, model: &Model, frame: Frame) {
     for particle in &model.particles {
         draw.ellipse() // Dibuja una elipse para representar la partícula.
             .xy(particle.position) // Establece la posición de la elipse.
-            .radius(1.5) // Establece el radio de la elipse.
+            .radius(0.5) // Establece el radio de la elipse.
             .color(particle.color); // Establece el color de la elipse.
     }
 
